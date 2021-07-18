@@ -29,6 +29,9 @@ df2 = df.join(attributes, on='ID', how='left', rsuffix='_attribute')
 df2.drop(columns=['Attribute Values', 'Attribute Names','entity_id'], inplace=True)
 
 
+# 2) Normalisation
+# Please normalise at least 2 attributes, and describe which normalisations are required for the other attributes 
+# including examples.
 # Unify car Type
 target['carType'].unique()
 df2['BodyTypeText'].unique()
@@ -79,23 +82,22 @@ df2['BodyColorText'] = df2['BodyColorText'].replace({'silber mét.':'Silver',
                                                      'braun':'Brown', 
                                                      'gold':'Gold'
                                                      })
-    
-df3['ConditionTypeText'].unique()
+
+# Unify Car Condition 
+df2['ConditionTypeText'].unique()
 target['condition'].unique()
 df2['ConditionTypeText'] = df2['ConditionTypeText'].replace({'Occasion':'Used', 
                                                              'Oldtimer':'Original Condition', 
                                                              'Vorführmodell':'Used with guarantee', 
                                                              'Neu':'New'})
 
-df3 = df2.drop_duplicates()
-df3.columns
 
 
 
 
-# 2) Normalisation
-# Please normalise at least 2 attributes, and describe which normalisations are required for the other attributes 
-# including examples.
+
+
+
 
 
 #3) Integration
@@ -104,8 +106,24 @@ df3.columns
 # - keep any attributes that you can map to the target schema
 # - discard attributes not mapped to the target schema
 # - keep the number of records as unchanged
+df2.drop(columns=['ID', 'TypeName', 'Ccm', 'Co2EmissionText','ConsumptionRatingText',
+        'FirstRegMonth','FirstRegYear', 
+       'Properties', 'Seats', 'TransmissionTypeText'],inplace=True)
 
+df2.rename(columns={'MakeText':'make', 
+                    'ModelText':'model',
+                    'ModelTypeText':'model_variant', 
+                    'BodyColorText':'color', 
+                    'BodyTypeText':'carType',
+                    'City':'city',
+                    'ConditionTypeText':'condition',
+                    'FirstRegMonth':'manufacture_month',
+                    'FirstRegYear':'manufacture_year',
+                    'Km':'mileage'
+                    }, inplace=True)
 
+df3 = df2.drop_duplicates()
+df3.columns
 
 # Deliverables
 # - An Excel/LibreOffice spreadsheet (no csv, no txt) with 3 tabs showing the results of each step above (i.e., pre-processing/
