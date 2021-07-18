@@ -95,10 +95,10 @@ df2['ConditionTypeText'] = df2['ConditionTypeText'].replace({'Occasion':'Used',
 
 
 
+df2['ConsumptionTotalText'].loc[df2['ConsumptionTotalText'] != 'null'] = 'l_km_consumption'
 
-
-
-
+df2['ConsumptionTotalText'].unique()
+target['fuel_consumption_unit'].unique()
 
 #3) Integration
 # Data Integration is to transform the supplier data with a specific data schema into a new dataset with target data schema,
@@ -106,9 +106,8 @@ df2['ConditionTypeText'] = df2['ConditionTypeText'].replace({'Occasion':'Used',
 # - keep any attributes that you can map to the target schema
 # - discard attributes not mapped to the target schema
 # - keep the number of records as unchanged
-df2.drop(columns=['ID', 'TypeName', 'Ccm', 'Co2EmissionText','ConsumptionRatingText',
-        'FirstRegMonth','FirstRegYear', 
-       'Properties', 'Seats', 'TransmissionTypeText'],inplace=True)
+df2.drop(columns=['ID', 'TypeName','TypeNameFull', 'Ccm', 'Co2EmissionText','ConsumptionRatingText', 'FuelTypeText',
+       'Properties', 'Seats', 'Doors','TransmissionTypeText','DriveTypeText', 'Hp','InteriorColorText'],inplace=True)
 
 df2.rename(columns={'MakeText':'make', 
                     'ModelText':'model',
@@ -119,11 +118,14 @@ df2.rename(columns={'MakeText':'make',
                     'ConditionTypeText':'condition',
                     'FirstRegMonth':'manufacture_month',
                     'FirstRegYear':'manufacture_year',
-                    'Km':'mileage'
+                    'Km':'mileage',
+                    'ConsumptionTotalText':'fuel_consumption_unit'
                     }, inplace=True)
 
 df3 = df2.drop_duplicates()
-df3.columns
+df2.columns
+
+target.dtypes
 
 # Deliverables
 # - An Excel/LibreOffice spreadsheet (no csv, no txt) with 3 tabs showing the results of each step above (i.e., pre-processing/
