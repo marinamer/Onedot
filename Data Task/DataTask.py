@@ -29,10 +29,21 @@ df2 = df.join(attributes, on='ID', how='left', rsuffix='_attribute')
 df2.drop(columns=['Attribute Values', 'Attribute Names','entity_id'], inplace=True)
 
 
-# 2) Normalisation
-# Please normalise at least 2 attributes, and describe which normalisations are required for the other attributes including examples.
+# Unify car Type
 target['carType'].unique()
 df2['BodyTypeText'].unique()
+
+df2['BodyTypeText'] = df2['BodyTypeText'].replace({'Cabriolet':'Convertible / Roadster', 
+                                                   'SUV / Geländewagen':'SUV', 
+                                                   'Kombi':'Station Wagon', 
+                                                   'Limousine':'Saloon', 
+                                                   'Coupé':'Coupé',
+                                                   'Kompaktvan / Minivan':'Other', 
+                                                   'Pick-up':'Other', 
+                                                   'Kleinwagen':'Other', 
+                                                   'Sattelschlepper':'Other',
+                                                   'Wohnkabine':'Other'
+                                                   })
 
 # Unify color column
 target['color'].unique()
@@ -41,7 +52,7 @@ df2['BodyColorText'].unique()
 df2['BodyColorText'] = df2['BodyColorText'].replace({'silber mét.':'Silver', 
                                                      'schwarz': 'Black',
                                                      'schwarz mét.':'Black',
-                                                     'bordeaux': 'Other',
+                                                     'bordeaux': 'Red',
                                                      'anthrazit mét.':'Gray',
                                                      'grün mét.':'Green',
                                                      'rot':'Red',
@@ -69,8 +80,24 @@ df2['BodyColorText'] = df2['BodyColorText'].replace({'silber mét.':'Silver',
                                                      'gold':'Gold'
                                                      })
     
-df3=df2.drop_duplicates()
-    
+df3['ConditionTypeText'].unique()
+target['condition'].unique()
+df2['ConditionTypeText'] = df2['ConditionTypeText'].replace({'Occasion':'Used', 
+                                                             'Oldtimer':'Original Condition', 
+                                                             'Vorführmodell':'Used with guarantee', 
+                                                             'Neu':'New'})
+
+df3 = df2.drop_duplicates()
+df3.columns
+
+
+
+
+# 2) Normalisation
+# Please normalise at least 2 attributes, and describe which normalisations are required for the other attributes 
+# including examples.
+
+
 #3) Integration
 # Data Integration is to transform the supplier data with a specific data schema into a new dataset with target data schema,
 # such as to:
