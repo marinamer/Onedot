@@ -3,6 +3,8 @@
 import json
 from pandas import json_normalize
 import pandas as pd
+import numpy as np
+import xlsxwriter
 
 
 # 1) Pre-processing
@@ -20,22 +22,24 @@ target = pd.read_excel('Target Data.xlsx')
 target.columns
 
 
+
 # Pivot Attribute Names into different columns. Drop original columns
 
 attributes = df.pivot_table(values='Attribute Values', index=df.ID, columns='Attribute Names', aggfunc='first')
 
-df2 = df.join(attributes, on='ID', how='left', rsuffix='_attribute')
+df = df.join(attributes, on='ID', how='left', rsuffix='_attribute')
 # I remove 'entity_id' to remove innecessary duplicates
-df2.drop(columns=['Attribute Values', 'Attribute Names','entity_id'], inplace=True)
-
+df.drop(columns=['Attribute Values', 'Attribute Names','entity_id'], inplace=True)
+df = df.drop_duplicates()
 
 # 2) Normalisation
 # Please normalise at least 2 attributes, and describe which normalisations are required for the other attributes 
 # including examples.
 # Unify car Type
 target['carType'].unique()
-df2['BodyTypeText'].unique()
+df['BodyTypeText'].unique()
 
+df2 = df.copy()
 df2['BodyTypeText'] = df2['BodyTypeText'].replace({'Cabriolet':'Convertible / Roadster', 
                                                    'SUV / Geländewagen':'SUV', 
                                                    'Kombi':'Station Wagon', 
@@ -97,6 +101,8 @@ df2['ConditionTypeText'] = df2['ConditionTypeText'].replace({'Occasion':'Used',
 
 df2['ConsumptionTotalText'].loc[df2['ConsumptionTotalText'] != 'null'] = 'l_km_consumption'
 
+df2['ConsumptionTotalText'].loc[df2['ConsumptionTotalText'] == 'null'] = np.nan
+
 df2['ConsumptionTotalText'].unique()
 target['fuel_consumption_unit'].unique()
 
@@ -106,10 +112,13 @@ target['fuel_consumption_unit'].unique()
 # - keep any attributes that you can map to the target schema
 # - discard attributes not mapped to the target schema
 # - keep the number of records as unchanged
-df2.drop(columns=['ID', 'TypeName','TypeNameFull', 'Ccm', 'Co2EmissionText','ConsumptionRatingText', 'FuelTypeText',
+
+df3 = df2.copy()
+
+df3.drop(columns=['ID', 'TypeName','TypeNameFull', 'Ccm', 'Co2EmissionText','ConsumptionRatingText', 'FuelTypeText',
        'Properties', 'Seats', 'Doors','TransmissionTypeText','DriveTypeText', 'Hp','InteriorColorText'],inplace=True)
 
-df2.rename(columns={'MakeText':'make', 
+df3.rename(columns={'MakeText':'make', 
                     'ModelText':'model',
                     'ModelTypeText':'model_variant', 
                     'BodyColorText':'color', 
@@ -122,10 +131,48 @@ df2.rename(columns={'MakeText':'make',
                     'ConsumptionTotalText':'fuel_consumption_unit'
                     }, inplace=True)
 
-df3 = df2.drop_duplicates()
-df2.columns
+
+df3.columns
 
 target.dtypes
+df3.dtypes
+
+df3 = df3.astype({'manufacture_year': 'int64', 'mileage': 'float64', 'manufacture_month':'float64'})
+
+df3 = df3.reindex(sorted(df3.columns), axis=1)
+
+df3['make'] = df3['make'].str.title()
+# COUNTRY CODE
+df3['country'] = np.nan
+
+# Currency column
+df3['currency'] = np.nan
+
+# drive column
+df3['drive'] = np.nan
+
+# milleage unit column
+df3['mileage_unit'] = 'kilometer'
+
+# price on request
+df3['price_on_request'] = False
+
+# type
+df3['type'] = 'car'
+
+# zip
+df3['zip'] = np.nan
+
+
+
+
+
+
+with pd.ExcelWriter('DataTask.xlsx', engine='xlsxwriter') as writer:
+    df.to_excel(writer, sheet_name='Pre-Processing', index=False)
+    df2.to_excel(writer, sheet_name='Normalisation', index=False)
+    df3.to_excel(writer, sheet_name='Integration', index=False)
+    
 
 # Deliverables
 # - An Excel/LibreOffice spreadsheet (no csv, no txt) with 3 tabs showing the results of each step above (i.e., pre-processing/
