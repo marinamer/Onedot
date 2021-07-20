@@ -137,11 +137,11 @@ df3.columns
 target.dtypes
 df3.dtypes
 
-df3 = df3.astype({'manufacture_year': 'int64', 'mileage': 'float64', 'manufacture_month':'float64'})
 
-df3 = df3.reindex(sorted(df3.columns), axis=1)
 
 df3['make'] = df3['make'].str.title()
+
+
 # COUNTRY CODE
 df3['country'] = np.nan
 df3['country'] = df3['country'].astype(object)
@@ -177,7 +177,17 @@ df3['zip'] = np.nan
 
 df3['city'].unique()
 
+# Changing data types to match the target
+df3 = df3.astype({'manufacture_year': 'int64', 'mileage': 'float64', 'manufacture_month':'float64', 'currency':'object', 
+                  'drive':'object', 'zip':'object'})
 
+df3 = df3.reindex(sorted(df3.columns), axis=1)
+
+df3 = df3[['carType', 'color', 'condition', 'currency', 'drive',
+           'city', 'country',  'make', 'manufacture_year',
+           'mileage', 'mileage_unit', 'model',
+           'model_variant', 'price_on_request', 'type', 'zip',
+           'manufacture_month', 'fuel_consumption_unit']]
 
 
 with pd.ExcelWriter('DataTask.xlsx', engine='xlsxwriter') as writer:
