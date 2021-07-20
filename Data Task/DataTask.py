@@ -144,6 +144,17 @@ df3 = df3.reindex(sorted(df3.columns), axis=1)
 df3['make'] = df3['make'].str.title()
 # COUNTRY CODE
 df3['country'] = np.nan
+df3['country'] = df3['country'].astype(object)
+
+cities = pd.read_csv('cities.csv')
+citiescode = cities[['name','country_code']].copy()
+
+citiescode.rename(columns={'name':'city', 'country_code':'country'}, inplace=True)
+citiescode.dtypes
+
+# df3= df3.join(citiescode, how='left', on='city', rsuffix='_')
+
+
 
 # Currency column
 df3['currency'] = np.nan
@@ -163,7 +174,7 @@ df3['type'] = 'car'
 # zip
 df3['zip'] = np.nan
 
-
+df3['city'].unique()
 
 
 
