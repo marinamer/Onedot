@@ -1,5 +1,4 @@
 # IMPORT LIBRARIES
-
 import json
 from pandas import json_normalize
 import pandas as pd
@@ -21,23 +20,17 @@ df.columns
 target = pd.read_excel('Target Data.xlsx')
 target.columns
 
-
-
 # Pivot Attribute Names into different columns. Drop original columns
-
 attributes = df.pivot_table(values='Attribute Values', index=df.ID, columns='Attribute Names', aggfunc='first')
-
 df = df.join(attributes, on='ID', how='left', rsuffix='_attribute')
+
 # I remove 'entity_id' to remove innecessary duplicates
 df.drop(columns=['Attribute Values', 'Attribute Names','entity_id'], inplace=True)
 df = df.drop_duplicates()
 
 # 2) Normalisation
-# Please normalise at least 2 attributes, and describe which normalisations are required for the other attributes 
-# including examples.
+
 # Unify car Type
-target['carType'].unique()
-df['BodyTypeText'].unique()
 
 df2 = df.copy()
 df2['BodyTypeText'] = df2['BodyTypeText'].replace({'Cabriolet':'Convertible / Roadster', 
@@ -53,8 +46,6 @@ df2['BodyTypeText'] = df2['BodyTypeText'].replace({'Cabriolet':'Convertible / Ro
                                                    })
 
 # Unify color column
-target['color'].unique()
-df2['BodyColorText'].unique()
 
 df2['BodyColorText'] = df2['BodyColorText'].replace({'silber mét.':'Silver', 
                                                      'schwarz': 'Black',
@@ -88,8 +79,7 @@ df2['BodyColorText'] = df2['BodyColorText'].replace({'silber mét.':'Silver',
                                                      })
 
 # Unify Car Condition 
-df2['ConditionTypeText'].unique()
-target['condition'].unique()
+
 df2['ConditionTypeText'] = df2['ConditionTypeText'].replace({'Occasion':'Used', 
                                                              'Oldtimer':'Original Condition', 
                                                              'Vorführmodell':'Used with guarantee', 
@@ -100,24 +90,17 @@ df2['ConditionTypeText'] = df2['ConditionTypeText'].replace({'Occasion':'Used',
 
 
 df2['ConsumptionTotalText'].loc[df2['ConsumptionTotalText'] != 'null'] = 'l_km_consumption'
-
 df2['ConsumptionTotalText'].loc[df2['ConsumptionTotalText'] == 'null'] = np.nan
 
-df2['ConsumptionTotalText'].unique()
-target['fuel_consumption_unit'].unique()
 
 #3) Integration
-# Data Integration is to transform the supplier data with a specific data schema into a new dataset with target data schema,
-# such as to:
-# - keep any attributes that you can map to the target schema
-# - discard attributes not mapped to the target schema
-# - keep the number of records as unchanged
-
 df3 = df2.copy()
 
+# Dropping columns not present in target data structure
 df3.drop(columns=['ID', 'TypeName','TypeNameFull', 'Ccm', 'Co2EmissionText','ConsumptionRatingText', 'FuelTypeText',
        'Properties', 'Seats', 'Doors','TransmissionTypeText','DriveTypeText', 'Hp','InteriorColorText'],inplace=True)
 
+# Normalising column names
 df3.rename(columns={'MakeText':'make', 
                     'ModelText':'model',
                     'ModelTypeText':'model_variant', 
@@ -132,13 +115,7 @@ df3.rename(columns={'MakeText':'make',
                     }, inplace=True)
 
 
-df3.columns
-
-target.dtypes
-df3.dtypes
-
-
-
+# Change 'make' column capitalisation to match target
 df3['make'] = df3['make'].str.title()
 
 
@@ -156,7 +133,7 @@ df3= df3.merge(citiescode, how='left', on='city')
 df3.rename(columns={'country_y':'country'}, inplace=True)
 df3.drop(columns=['country_x'], inplace=True)
 
-
+# Generating the missing columns
 # Currency column
 df3['currency'] = np.nan
 
@@ -166,13 +143,13 @@ df3['drive'] = np.nan
 # milleage unit column
 df3['mileage_unit'] = 'kilometer'
 
-# price on request
+# price on request column
 df3['price_on_request'] = False
 
-# type
+# type column
 df3['type'] = 'car'
-
-# zip
+ 
+# zip column
 df3['zip'] = np.nan
 
 df3['city'].unique()
@@ -181,8 +158,8 @@ df3['city'].unique()
 df3 = df3.astype({'manufacture_year': 'int64', 'mileage': 'float64', 'manufacture_month':'float64', 'currency':'object', 
                   'drive':'object', 'zip':'object'})
 
-df3 = df3.reindex(sorted(df3.columns), axis=1)
 
+# Reordering columns to match target for readability 
 df3 = df3[['carType', 'color', 'condition', 'currency', 'drive',
            'city', 'country',  'make', 'manufacture_year',
            'mileage', 'mileage_unit', 'model',
@@ -190,20 +167,9 @@ df3 = df3[['carType', 'color', 'condition', 'currency', 'drive',
            'manufacture_month', 'fuel_consumption_unit']]
 
 
+# Generate Excel file 
 with pd.ExcelWriter('DataTask.xlsx', engine='xlsxwriter') as writer:
     df.to_excel(writer, sheet_name='Pre-Processing', index=False)
     df2.to_excel(writer, sheet_name='Normalisation', index=False)
     df3.to_excel(writer, sheet_name='Integration', index=False)
     
-
-# Deliverables
-# - An Excel/LibreOffice spreadsheet (no csv, no txt) with 3 tabs showing the results of each step above (i.e., pre-processing/
-# normalisation/integration)
-# - A script (R/Python/SQL/etc.) that can be executed to provide the above Excel file
-# - A customer presentation (PowerPoint or similar) to describe the above processing. Assume that the audience is the
-# customer onboarding manager – someone with business knowledge, and medium technical knowledge. This presentation
-# should include at least:
-# o key facts of input / output, e.g., # attributes, # records
-# o summary of changes you made to the input data
-# o summary of changes you can potentially make to the input data, with examples
-# o take-away message and actions to take for the customer
