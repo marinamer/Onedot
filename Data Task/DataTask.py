@@ -35,8 +35,7 @@ df2 = df.copy()
 df2['BodyTypeText'] = df2['BodyTypeText'].replace({'Cabriolet':'Convertible / Roadster', 
                                                    'SUV / Geländewagen':'SUV', 
                                                    'Kombi':'Station Wagon', 
-                                                   'Limousine':'Saloon', 
-                                                   'Coupé':'Coupé',
+                                                   'Limousine':'Saloon',
                                                    'Kompaktvan / Minivan':'Other', 
                                                    'Pick-up':'Other', 
                                                    'Kleinwagen':'Other', 
@@ -75,6 +74,8 @@ df2['BodyColorText'] = df2['BodyColorText'].replace({'silber mét.':'Silver',
                                                      'braun':'Brown', 
                                                      'gold':'Gold'
                                                      })
+# The unification of the color colummn could be automatised by direct translation (either through an external dataframe
+# or through API to a service such as Google Translate).
 
 # Unify Car Condition 
 df2['ConditionTypeText'] = df2['ConditionTypeText'].replace({'Occasion':'Used', 
@@ -82,7 +83,7 @@ df2['ConditionTypeText'] = df2['ConditionTypeText'].replace({'Occasion':'Used',
                                                              'Vorführmodell':'Used with guarantee', 
                                                              'Neu':'New'})
 
-
+# ConsumtionTotal normalised to match fuel_consumption_unit
 df2['ConsumptionTotalText'].loc[df2['ConsumptionTotalText'] != 'null'] = 'l_km_consumption'
 df2['ConsumptionTotalText'].loc[df2['ConsumptionTotalText'] == 'null'] = np.nan
 
