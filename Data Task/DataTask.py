@@ -152,8 +152,9 @@ citiescode = cities[['name','country_code']].copy()
 citiescode.rename(columns={'name':'city', 'country_code':'country'}, inplace=True)
 citiescode.dtypes
 
-# df3= df3.join(citiescode, how='left', on='city', rsuffix='_')
-
+df3= df3.merge(citiescode, how='left', on='city')
+df3.rename(columns={'country_y':'country'}, inplace=True)
+df3.drop(columns=['country_x'], inplace=True)
 
 
 # Currency column
