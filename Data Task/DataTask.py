@@ -7,7 +7,7 @@ import xlsxwriter
 
 
 # 1) Pre-processing
-# OPEN JSON FILE AND NORMALISE
+# Open Json file and normalise
 data = []
 with open('supplier_car.json', encoding='utf-8') as f:
   for line in f:
@@ -16,22 +16,21 @@ with open('supplier_car.json', encoding='utf-8') as f:
 df = json_normalize(data)
 df.columns
 
-# OPEN TARGET DATA FILE
+# Open Target data file
 target = pd.read_excel('Target Data.xlsx')
 target.columns
 
-# Pivot Attribute Names into different columns. Drop original columns
+# Pivot Attribute Names and Attribute Values columns. Drop original columns
 attributes = df.pivot_table(values='Attribute Values', index=df.ID, columns='Attribute Names', aggfunc='first')
 df = df.join(attributes, on='ID', how='left', rsuffix='_attribute')
 
-# I remove 'entity_id' to remove innecessary duplicates
+# Remove 'entity_id' to drop duplicates
 df.drop(columns=['Attribute Values', 'Attribute Names','entity_id'], inplace=True)
 df = df.drop_duplicates()
 
+
 # 2) Normalisation
-
 # Unify car Type
-
 df2 = df.copy()
 df2['BodyTypeText'] = df2['BodyTypeText'].replace({'Cabriolet':'Convertible / Roadster', 
                                                    'SUV / Geländewagen':'SUV', 
@@ -46,7 +45,6 @@ df2['BodyTypeText'] = df2['BodyTypeText'].replace({'Cabriolet':'Convertible / Ro
                                                    })
 
 # Unify color column
-
 df2['BodyColorText'] = df2['BodyColorText'].replace({'silber mét.':'Silver', 
                                                      'schwarz': 'Black',
                                                      'schwarz mét.':'Black',
@@ -79,14 +77,10 @@ df2['BodyColorText'] = df2['BodyColorText'].replace({'silber mét.':'Silver',
                                                      })
 
 # Unify Car Condition 
-
 df2['ConditionTypeText'] = df2['ConditionTypeText'].replace({'Occasion':'Used', 
                                                              'Oldtimer':'Original Condition', 
                                                              'Vorführmodell':'Used with guarantee', 
                                                              'Neu':'New'})
-
-
-
 
 
 df2['ConsumptionTotalText'].loc[df2['ConsumptionTotalText'] != 'null'] = 'l_km_consumption'
@@ -118,8 +112,7 @@ df3.rename(columns={'MakeText':'make',
 # Change 'make' column capitalisation to match target
 df3['make'] = df3['make'].str.title()
 
-
-# COUNTRY CODE
+# Country Code
 df3['country'] = np.nan
 df3['country'] = df3['country'].astype(object)
 
