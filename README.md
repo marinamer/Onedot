@@ -4,7 +4,7 @@ In this repository you will find the finished Data Task for the Onedot Data Anal
 ## Requirements
 In order to run the script you will need the following Python modules, which you can install by running the console commands below:
 - openpyxl
-    > $ pip install openpyxl
+    ``` $ pip install openpyxl```
 - XlsxWriter==1.4.4
     > $ pip install xlsxwriter
 - numpy==1.20.3
