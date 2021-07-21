@@ -7,10 +7,13 @@ In order to run the script you will need the following Python modules, which you
 
     ``` $ pip install openpyxl```
 - XlsxWriter==1.4.4
+ 
     ``` $ pip install xlsxwriter```
 - numpy==1.20.3
+ 
     ``` $ pip install numpy```
 - pandas==1.2.4
+
     ``` $ pip install pandas ```
 
 ## Script
